@@ -22,17 +22,27 @@ export default {
     padding: 160px 0
     margin: 0 auto
     overflow: hidden
+
   .title-container
     text-align center
     margin-bottom: 20px
+
     img
       width: 200px
+
   .captcha-container
     width: 340px
-    position: relative;
+    position: relative
+
+    .el-button
+      width: 90px
+      padding: 0
+      line-height: 40px
+
     .captcha
       position absolute
       right: -110px
+
       img
         width: 90px
         height: 50px

@@ -67,8 +67,8 @@ export default {
         ]
       },
       form: {
-        email: 'test@email.com',
-        nickname: 'test-name',
+        email: 'slybootslion@vip.qq.com',
+        nickname: 'slybootslion',
         passwd: 'a123456',
         repasswd: 'a123456',
         captcha: ''
