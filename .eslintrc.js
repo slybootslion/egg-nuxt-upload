@@ -16,6 +16,6 @@ module.exports = {
   ],
   // add your custom rules here
   rules: {
-    semi: ['error', 'never']
+    'no-console': 'off'
   }
 }

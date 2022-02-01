@@ -23,7 +23,8 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
-    '@/plugins/element-ui'
+    '@/plugins/element-ui',
+    '@/plugins/axios'
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -38,7 +39,8 @@ export default {
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     // https://go.nuxtjs.dev/axios
-    '@nuxtjs/axios'
+    '@nuxtjs/axios',
+    '@nuxtjs/proxy'
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
@@ -52,7 +54,16 @@ export default {
     transpile: [/^element-ui/]
   },
   server: {
-    port: 39000, // default: 3000
-    host: '0.0.0.0' // default: localhost
+    port: 40001,
+    host: '0.0.0.0'
+  },
+  proxy: {
+    '/api/': {
+      target: 'http://localhost:40000',
+      secure: false,
+      pathRewrite: {
+        '^/api': ''
+      }
+    }
   }
 }
