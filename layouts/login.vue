@@ -19,7 +19,7 @@ export default {
 
   .login-form
     width: 520px
-    padding: 160px 0
+    padding: 140px 0
     margin: 0 auto
     overflow: hidden
 
