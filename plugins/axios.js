@@ -3,8 +3,7 @@ import axios from 'axios'
 import { MessageBox } from 'element-ui'
 
 const service = axios.create({
-  baseURL: '/api',
-  timeout: 5000
+  baseURL: '/api'
 })
 
 export default ({ store, redirect }) => {
