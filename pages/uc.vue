@@ -1,7 +1,7 @@
 <script>
 import sparkMD5 from 'spark-md5'
 
-const CHUNK_SIZE = 0.1 * 1024 * 1024
+const CHUNK_SIZE = 1024 * 1024
 export default {
   name: 'UcPage',
   data () {
@@ -89,7 +89,10 @@ export default {
       const chunks = []
       let cur = 0
       while (cur < this.file.size) {
-        chunks.push({ index: cur, file: this.file.slice(cur, cur + size) })
+        chunks.push({
+          index: cur,
+          file: this.file.slice(cur, cur + size)
+        })
         cur += size
       }
       return chunks
@@ -99,7 +102,10 @@ export default {
         this.worker = new Worker('/hash.js')
         this.worker.postMessage({ chunks: this.chunks })
         this.worker.onmessage = (e) => {
-          const { progress, hash } = e.data
+          const {
+            progress,
+            hash
+          } = e.data
           this.hashProgress = Number(progress.toFixed(2))
           if (hash) {
             resolve(hash)
@@ -189,10 +195,14 @@ export default {
       this.chunks = chunks.map((chunk, index) => {
         const name = `${hash2}-${index}`
         return {
-          hash: hash2, name, index, chunk: chunk.file
+          hash: hash2,
+          name,
+          index,
+          chunk: chunk.file,
+          progress: 0
         }
       })
-      // await this.uploadChunks()
+      await this.uploadChunks()
     },
     async uploadChunks () {
       const requests = this.chunks.map((chunk, index) => {
@@ -202,12 +212,13 @@ export default {
         form.append('name', chunk.name)
         form.append('index', chunk.index)
         return form
-      }).map((form, index) => this.$http.post('/uploadfile', {
+      }).map((form, index) => this.$http.post('/uploadfile', form, {
         onUploadProgress: (progress) => {
-          this.uploadProgress = Number(((progress.loaded / progress.total) * 100).toFixed(2))
+          this.chunks[index].progress = Number(((progress.loaded / progress.total) * 100).toFixed(2))
         }
       }))
       await Promise.all(requests)
+      await this.mergeRequest()
       /* const form = new FormData()
         form.append('name', 'file')
         form.append('file', this.file)
@@ -217,6 +228,13 @@ export default {
           }
         })
         console.log(res) */
+    },
+    async mergeRequest () {
+      await this.$http.post('/mergefile', {
+        ext: this.file.name.split('.').pop(),
+        size: CHUNK_SIZE,
+        hash: this.hash
+      })
     }
   }
 }
@@ -244,10 +262,11 @@ export default {
         <div v-for="chunk in chunks" :key="chunk.name" class="cube">
           <div
             :class="{
-              'upload': chunk.progress > 0 && chunk.progress < 100,
+              'uploading': chunk.progress > 0 && chunk.progress < 100,
               'success': chunk.progress === 100,
               'error': chunk.progress < 0
             }"
+            :style="{height: chunk.progress + '%'}"
           />
           <i v-if="chunk.progress < 100 && chunk.progress > 0" class="el-icon-loading" style="color: #f56c6c" />
         </div>
