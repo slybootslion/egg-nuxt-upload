@@ -7,8 +7,21 @@ export default {
   data () {
     return {
       file: null,
-      uploadProgress: 0,
-      hashProgress: 0
+      // uploadProgress: 0,
+      hashProgress: 0,
+      chunks: []
+    }
+  },
+  computed: {
+    cubeWidth () {
+      return Math.ceil(Math.sqrt(this.chunks.length)) * 16
+    },
+    uploadProgress () {
+      if (!this.file || this.chunks.length) {
+        return 0
+      }
+      const loaded = this.chunks.map(item => item.chunk.size * item.progress).reduce((acc, cur) => acc + cur, 0)
+      return Number(((loaded * 100) / this.file.size).toFixed(2))
     }
   },
   async mounted () {
@@ -179,7 +192,7 @@ export default {
           hash: hash2, name, index, chunk: chunk.file
         }
       })
-      await this.uploadChunks()
+      // await this.uploadChunks()
     },
     async uploadChunks () {
       const requests = this.chunks.map((chunk, index) => {
@@ -227,8 +240,17 @@ export default {
       <el-progress :stroke-width="20" :text-inside="true" :percentage="hashProgress" />
     </div>
     <div>
-      <div class="cube-container">
-        todo
+      <div class="cube-container" :style="{width: cubeWidth + 'px'}">
+        <div v-for="chunk in chunks" :key="chunk.name" class="cube">
+          <div
+            :class="{
+              'upload': chunk.progress > 0 && chunk.progress < 100,
+              'success': chunk.progress === 100,
+              'error': chunk.progress < 0
+            }"
+          />
+          <i v-if="chunk.progress < 100 && chunk.progress > 0" class="el-icon-loading" style="color: #f56c6c" />
+        </div>
       </div>
     </div>
   </div>
@@ -241,4 +263,22 @@ export default {
   border 2px #eee dashed
   text-align center
   vertical-align middle
+
+.cube-container
+  .cube
+    width 14px
+    height: 14px
+    line-height: 12px
+    border 1px black solid
+    background #eee
+    float: left
+
+    > .success
+      background-color: green
+
+    > .uploading
+      background-color: blue
+
+    > .error
+      background-color: red
 </style>
