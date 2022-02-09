@@ -165,22 +165,45 @@ export default {
       } else {
         console.log('文件格式正确')
       }
-      this.chunks = this.createFileChunk(this.file)
-      const hash = await this.calculateHashWorker()
-      const hash1 = await this.calculateHashIdle()
+      const chunks = this.createFileChunk(this.file)
+      // const hash = await this.calculateHashWorker()
+      // const hash1 = await this.calculateHashIdle()
       const hash2 = await this.calculateHashSample()
-      console.log('文件hash：', hash)
-      console.log('文件hash1：', hash1)
-      console.log('文件hash2：', hash2)
-      /* const form = new FormData()
-      form.append('name', 'file')
-      form.append('file', this.file)
-      const res = await this.$http.post('/uploadfile', form, {
+      this.hash = hash2
+      // console.log('文件hash：', hash)
+      // console.log('文件hash1：', hash1)
+      // console.log('文件hash2：', hash2)
+      this.chunks = chunks.map((chunk, index) => {
+        const name = `${hash2}-${index}`
+        return {
+          hash: hash2, name, index, chunk: chunk.file
+        }
+      })
+      await this.uploadChunks()
+    },
+    async uploadChunks () {
+      const requests = this.chunks.map((chunk, index) => {
+        const form = new FormData()
+        form.append('chunk', chunk.chunk)
+        form.append('hash', chunk.hash)
+        form.append('name', chunk.name)
+        form.append('index', chunk.index)
+        return form
+      }).map((form, index) => this.$http.post('/uploadfile', {
         onUploadProgress: (progress) => {
           this.uploadProgress = Number(((progress.loaded / progress.total) * 100).toFixed(2))
         }
-      })
-      console.log(res) */
+      }))
+      await Promise.all(requests)
+      /* const form = new FormData()
+        form.append('name', 'file')
+        form.append('file', this.file)
+        const res = await this.$http.post('/uploadfile', form, {
+          onUploadProgress: (progress) => {
+            this.uploadProgress = Number(((progress.loaded / progress.total) * 100).toFixed(2))
+          }
+        })
+        console.log(res) */
     }
   }
 }
@@ -202,6 +225,11 @@ export default {
     </div>
     <div>
       <el-progress :stroke-width="20" :text-inside="true" :percentage="hashProgress" />
+    </div>
+    <div>
+      <div class="cube-container">
+        todo
+      </div>
     </div>
   </div>
 </template>
