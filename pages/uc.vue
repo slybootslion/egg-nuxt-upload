@@ -192,6 +192,18 @@ export default {
       // console.log('文件hash：', hash)
       // console.log('文件hash1：', hash1)
       // console.log('文件hash2：', hash2)
+      // 秒传（询问后端是否上传过，如果有，是否存在切片）
+      const {
+        data: {
+          uploaded,
+          uploadedList
+        }
+      } = await this.$http.post('/checkfile', this.fileUploadData(false))
+      if (uploaded) {
+        return this.$message.success('秒传成功')
+      }
+      console.log(uploadedList)
+
       this.chunks = chunks.map((chunk, index) => {
         const name = `${hash2}-${index}`
         return {
@@ -230,11 +242,17 @@ export default {
         console.log(res) */
     },
     async mergeRequest () {
-      await this.$http.post('/mergefile', {
+      await this.$http.post('/mergefile', this.fileUploadData())
+    },
+    fileUploadData (hasSize = true) {
+      const data = {
         ext: this.file.name.split('.').pop(),
-        size: CHUNK_SIZE,
         hash: this.hash
-      })
+      }
+      if (hasSize) {
+        data.size = CHUNK_SIZE
+      }
+      return data
     }
   }
 }
