@@ -12,6 +12,7 @@ module.exports = app => {
   router.get('/sendcode', controller.utils.sendcode)
   router.post('/uploadfile', jwt, controller.utils.uploadfile)
   router.post('/mergefile', jwt, controller.utils.mergefile)
+  router.post('/checkfile', jwt, controller.utils.checkfile)
   // user
   router.group({ name: 'user', prefix: '/user' }, router => {
     const { info, register, login, verify } = controller.user
