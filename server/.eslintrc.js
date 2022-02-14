@@ -1,8 +1,9 @@
 module.exports = {
-    "extends": [
-        "eslint-config-egg",
-    ],
-    "rules": {
-      "semi": ["error", "never"]
-    }
+  "extends": [
+    "eslint-config-egg",
+  ],
+  "rules": {
+    "semi": ["error", "never"],
+    "space-before-function-paren": ["error", "always"]
+  }
 };
